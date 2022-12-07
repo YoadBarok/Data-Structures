@@ -41,10 +41,7 @@ export class LinkedList {
         
         while (current && current.getVal() !== val) {
             current = current.getNext();
-        }
-        console.log(current.val);
-        
-
+        }     
         return current || "Not found!";
     }
     
