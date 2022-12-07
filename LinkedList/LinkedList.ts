@@ -2,13 +2,13 @@ import { CustomNode } from "./CustomNode";
 
 export class LinkedList {
 
-    head: any;
+    head: CustomNode | undefined;
 
     constructor() {
         this.head = undefined;
     }
 
-    
+
     prepend(val: number): void {
         this.head = new CustomNode(val, this.head);
     }
@@ -18,12 +18,13 @@ export class LinkedList {
             this.head = new CustomNode(val);
         }
 
-        let current = this.head;
-        while (current.getNext()) {
+        let current: CustomNode | undefined = this.head;
+        while (current && current.getNext()) {
             current = current.getNext();
         }
-
-        current.next = new CustomNode(val);
+        if (current) {
+            current.setNext(new CustomNode(val));
+        }
     }
 
     insertAfter(targetVal: number, newVal: number): void {
@@ -32,43 +33,47 @@ export class LinkedList {
             current = current.getNext();
         }
         if (current) {
-            current.setNext(new CustomNode(newVal, current.next));
+            current.setNext(new CustomNode(newVal, current.getNext()));
         }
     }
-    
-    find(val: number): CustomNode {
+
+    find(val: number): CustomNode | "Not Found!" {
         let current = this.head;
-        
+
         while (current && current.getVal() !== val) {
             current = current.getNext();
-        }     
-        return current || "Not found!";
+        }
+        if (current) {
+            return current;
+        }
+        return "Not Found!";
     }
-    
+
     remove(val: number): void {
         let current = this.head;
         let previous: CustomNode | undefined;
-        
+
         while (current && current.getVal() !== val) {
             previous = current;
             current = current.getNext();
         }
-        
-        if (!previous) {
-            this.head = current.getNext();
-        } else if (current) {
-            previous.setNext(current.next);
-            current.setNext(undefined);
+        if (current) {
+            if (!previous) {
+                this.head = current.getNext();
+            } else if (current) {
+                previous.setNext(current.getNext());
+                current.setNext(undefined);
+            }
         }
     }
 
     countNodes(): number {
         let count = 0;
         let current = this.head;
-        
+
         if (!current) return 0;
 
-        while (current.getNext()) {
+        while (current && current.getNext()) {
             current = current.getNext();
             count++;
         }
@@ -77,10 +82,10 @@ export class LinkedList {
 
     reverse(): void {
         let current = this.head;
-        
+
         let previousNode: CustomNode | undefined,
-        nextNode: CustomNode | undefined;
-        
+            nextNode: CustomNode | undefined;
+
         while (current) {
             nextNode = current.getNext();
             current.setNext(previousNode);
@@ -89,18 +94,19 @@ export class LinkedList {
         }
         this.head = previousNode;
     }
-    
+
     copy(): LinkedList {
-        
+
         let current = this.head;
-        
+
         const copiedList = new LinkedList();
-        copiedList.head = new CustomNode(current.getVal());
-        let copyCurrent = copiedList.head;
-        
+        copiedList.head = current;
+        let copyCurrent = current;
+
         while (current && current.getNext()) {
-            copyCurrent.setNext(new CustomNode(current.next.val));
-            copyCurrent = copyCurrent.getNext();
+            let nextNode = current.getNext();
+            copyCurrent?.setNext(nextNode);
+            copyCurrent = nextNode;
             current = current.getNext();
         }
         return copiedList;
@@ -109,12 +115,12 @@ export class LinkedList {
     represent(): string {
         let nodes: number[] = [];
         let current: CustomNode | undefined = this.head;
-    
+
         while (current) {
             nodes.push(current.getVal());
             current = current.getNext();
         }
-    
+
         return `[${nodes.join(" -> ")}]`;
     }
 
